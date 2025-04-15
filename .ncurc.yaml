@@ -3,5 +3,6 @@ reject: [
   "eslint", # typescript-eslint v7 only supports eslint v8
   "redis",
   "@types/redis",
-  "redis-mock"
+  "redis-mock",
+  "@types/javascript-state-machine"
 ]
