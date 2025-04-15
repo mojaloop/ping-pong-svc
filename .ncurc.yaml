@@ -2,5 +2,6 @@
 reject: [
   "eslint", # typescript-eslint v7 only supports eslint v8
   "redis",
-  "@types/redis"
+  "@types/redis",
+  "redis-mock"
 ]

@@ -1,6 +1,14 @@
 {
   "compilerOptions": {
     "baseUrl": "./",
+    "paths": {
+      "~/*": [
+        "src/*"
+      ],
+      "test/*": [
+        "test/*"
+      ]
+    },
     "rootDirs": [
       "src",
       "test"
@@ -22,15 +30,6 @@
     "declarationMap": true,
     "resolveJsonModule": true
   },
-  "baseUrl": "./",
-  "paths": {
-    "~/*": [
-      "src/*"
-    ],
-    "test/*": [
-      "test/*"
-    ]
-  },
   "include": [
     "src",
     "test",
@@ -45,5 +44,5 @@
     "node_modules",
     "dist",
     "coverage"
-  ],
+  ]
 }
