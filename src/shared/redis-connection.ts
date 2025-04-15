@@ -28,8 +28,6 @@
 
 import { RedisClient, createClient } from 'redis'
 import { promisify } from 'util'
-import { Logger as SDKLogger } from '@mojaloop/sdk-standard-components'
-
 
 export class RedisConnectionError extends Error {
   public readonly host: string

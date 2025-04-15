@@ -2,13 +2,7 @@ import { Request, ResponseToolkit, ResponseObject } from '@hapi/hapi'
 import { Context } from '../../plugins'
 import { Message, PubSub } from '../../../shared/pub-sub'
 import { logger } from '../../../shared/logger'
-
-const notificationChannel = (id: string): string => {
-  if (!(id && id.toString().length > 0)) {
-    throw new Error("notificationChannel: 'id' parameter is required")
-  }
-  return `pingPong_${id}`
-}
+import { PingPongModel } from '../../../models/outbound/pingPong.model'
 
 export async function put(context: Context, request: Request, h: ResponseToolkit): Promise<ResponseObject> {
   try {
@@ -19,7 +13,7 @@ export async function put(context: Context, request: Request, h: ResponseToolkit
       return h.response({ error: "'ID' parameter is required" }).code(400)
     }
 
-    const channel = notificationChannel(ID)
+    const channel = PingPongModel.notificationChannel(ID)
 
     // @ts-ignore
     const publisher: PubSub = request.server.app.publisher

@@ -47,6 +47,7 @@ export default async function create(config: ServiceConfig, deps: PingPongServic
     app: {
       publisher: deps.publisher,
       subscriber: deps.subscriber,
+      kvs: deps.kvs,
     }
   })
 

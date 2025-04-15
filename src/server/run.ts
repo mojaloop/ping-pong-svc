@@ -32,6 +32,7 @@ import plugins from './plugins'
 import { RedisConnectionConfig } from '../shared/redis-connection'
 import { PubSub } from 'src/shared/pub-sub'
 import { Util } from '@mojaloop/central-services-shared'
+import { KVS } from 'src/shared/kvs'
 
 const connection: RedisConnectionConfig = {
   host: Config.REDIS.HOST,
@@ -46,15 +47,16 @@ export default async function run(config: ServiceConfig): Promise<Server[]> {
     hubName: Config.HUB_PARTICIPANT.NAME,
     hubNameRegex: Util.HeaderValidation.getHubNameRegex(Config.HUB_PARTICIPANT.NAME)
   })
-
+  const kvs = new KVS(connection)
+  await kvs.connect()
   const subscriber = new PubSub(connection)
   await subscriber.connect()
-  const adminServer = await create({...config, PORT: config.ADMIN_PORT}, { logger, subscriber })
+  const adminServer = await create({...config, PORT: config.ADMIN_PORT}, { logger, subscriber, kvs })
   await plugins.registerAdmin(adminServer)
 
   const publisher = new PubSub(connection)
   await publisher.connect()
-  const fspServer = await create({...config, PORT: config.FSP_PORT}, { logger, publisher })
+  const fspServer = await create({...config, PORT: config.FSP_PORT}, { logger, publisher, kvs })
   await plugins.registerFsp(fspServer)
 
   await Promise.all([start(fspServer), start(adminServer)])

@@ -31,92 +31,38 @@
 import { Request, ResponseToolkit, ResponseObject } from '@hapi/hapi'
 import { Context } from '../plugins'
 import Config from '../../shared/config'
-import { Util, Enum } from '@mojaloop/central-services-shared'
 
-import SDK from '@mojaloop/sdk-standard-components'
 import { logger } from '../../shared/logger'
-import { PubSub, Message } from 'src/shared/pub-sub'
-
-const hubName = Config.HUB_PARTICIPANT.NAME
+import { create } from 'src/models/outbound/pingPong.model'
+import { PingPongPostResponse } from 'src/models/outbound/pingPong.interface'
 
 export async function post(_context: Context, request: Request, h: ResponseToolkit): Promise<ResponseObject> {
   try {
-    const fspiopDestination = request.headers['fspiop-destination'];
-
-    const endpointType = Enum.EndPoints.FspEndpointTypes.FSPIOP_CALLBACK_URL_QUOTES
-    const participantEndpoint = await Util.Endpoints.getEndpoint(
-      Config.SWITCH_ENDPOINT,
-      fspiopDestination,
-      endpointType,
-      undefined
-    )
-    if (!participantEndpoint) {
-      return h.response({ error: 'Participant endpoint not found' }).code(404);
-    }
-
-    const jwsSigner = getJWSSigner(hubName)
-    return new Promise(async (resolve, reject) => {
-      let subId = 0
-
-      // @ts-ignore
-      const subscriber = request.server.app.subscriber
-      // @ts-ignore
-      const channel = notificationChannel(request.payload.requestId)
-      try {
-
-        subId = subscriber.subscribe(channel, async (channel: string, message: Message, sid: number) => {
-          logger.debug(`Received message on channel: ${channel}`)
-          // first unsubscribe
-          subscriber.unsubscribe(channel, sid)
-
-          const putResponse = message as any
-          return resolve(h.response(putResponse).code(putResponse.errorInformation ? 400 : 200))
-        })
-
-        await Util.Request.sendRequest({
-          url: participantEndpoint,
-          source: hubName,
-          destination: fspiopDestination,
-          headers: {
-            'fspiop-source': hubName,
-            'fspiop-destination': fspiopDestination,
-            'fspiop-signature': request.headers['fspiop-signature'],
-          },
-          jwsSigner,
-          method: 'POST',
-          payload: request.payload,
-          hubNameRegex: Util.HeaderValidation.getHubNameRegex(hubName),
-        })
-      } catch (error) {
-        logger.error('getAccounts request error', error)
-        subscriber.unsubscribe(channel, subId)
-        reject(error)
+    // @ts-ignore
+    const subscriber = request.server.app.subscriber
+    // @ts-ignore
+    const kvs = request.server.app.kvs
+    const model = await create(
+      {
+        requestId: (request.payload as { requestId: string }).requestId,
+        request,
+        currentState: 'start',
+      },
+      {
+        appConfig: Config,
+        logger,
+        subscriber,
+        kvs,
+        key: (request.payload as { requestId: string }).requestId,
       }
-    })
+    )
+    const result = (await model.run()) as PingPongPostResponse
+    return h.response(result).code(200)
   } catch (error) {
     return h.response({ error: error instanceof Error ? error.message : 'Unknown error' }).code(500)
   }
 }
 
-const notificationChannel = (id: string): string => {
-  if (!(id && id.toString().length > 0)) {
-    throw new Error("PISPDiscoveryModel.notificationChannel: 'id' parameter is required")
-  }
-  // channel name
-  return `pingPong_${id}`
-}
-
-const getJWSSigner = (from: string) => {
-  let jwsSigner
-  if (Config.ENDPOINT_SECURITY.JWS.JWS_SIGN && from === hubName) {
-    logger.debug('Notification::getJWSSigner: get JWS signer')
-    jwsSigner = new SDK.Jws.JwsSigner({
-      logger: logger,
-      signingKey: Config.ENDPOINT_SECURITY.JWS.JWS_SIGNING_KEY
-    })
-  }
-  return jwsSigner
-}
 
 export default {
   post,
