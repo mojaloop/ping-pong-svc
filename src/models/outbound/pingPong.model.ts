@@ -31,11 +31,11 @@ import {
   PingPongPostResponse,
   PingPongStateMachine
 } from './pingPong.interface'
-import { Message, PubSub } from '../../shared/pub-sub'
+import { Message, PubSub } from '~/shared/pub-sub'
 import { PersistentModel } from '../persistent.model'
 import { StateMachineConfig } from 'javascript-state-machine'
 
-import inspect from '../../shared/inspect'
+import inspect from '~/shared/inspect'
 import SDK from '@mojaloop/sdk-standard-components';
 import { Util } from '@mojaloop/central-services-shared'
 import { Enum } from '@mojaloop/central-services-shared'

@@ -28,7 +28,7 @@
 
 import { ControlledStateMachine, PersistentModelConfig, StateData } from '../persistent.model'
 import { Method } from 'javascript-state-machine'
-import { PubSub } from '../../shared/pub-sub'
+import { PubSub } from '~/shared/pub-sub'
 import { ServiceConfig } from 'config/serviceConfig'
 
 export enum PingPongModelState {

@@ -1,0 +1,67 @@
+{
+  "order": [
+    {
+      "name": "hub_setup.json",
+      "type": "file",
+      "labels": [
+        "std"
+      ]
+    },
+    {
+      "name": "hub_setup_prod.json",
+      "type": "file",
+      "labels": [
+        "std",
+        "prod-tests"
+      ]
+    },
+    {
+      "name": "participant_receiver.json",
+      "type": "file",
+      "labels": [
+        "std",
+        "prod-tests"
+      ]
+    },
+    {
+      "name": "participant_sender.json",
+      "type": "file",
+      "labels": [
+        "std",
+        "prod-tests"
+      ]
+    },
+    {
+      "name": "fxp.json",
+      "type": "file",
+      "labels": [
+        "std",
+        "prod-tests"
+      ]
+    },
+    {
+      "name": "participants_perf",
+      "type": "folder",
+      "labels": [
+        "perf",
+        "prod-tests"
+      ]
+    },
+    {
+      "name": "participants_fx",
+      "type": "folder",
+      "labels": [
+        "fx",
+        "prod-tests"
+      ]
+    },
+    {
+      "name": "participants_fx_sdk",
+      "type": "folder",
+      "labels": [
+        "fx-sdk",
+        "prod-tests"
+      ]
+    }
+  ]
+}

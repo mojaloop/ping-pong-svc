@@ -30,9 +30,9 @@ import create from './create'
 import start from './start'
 import plugins from './plugins'
 import { RedisConnectionConfig } from '../shared/redis-connection'
-import { PubSub } from 'src/shared/pub-sub'
+import { PubSub } from '~/shared/pub-sub'
 import { Util } from '@mojaloop/central-services-shared'
-import { KVS } from 'src/shared/kvs'
+import { KVS } from '~/shared/kvs'
 
 const connection: RedisConnectionConfig = {
   host: Config.REDIS.HOST,

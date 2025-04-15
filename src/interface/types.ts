@@ -1,8 +1,8 @@
 'use strict'
 
-import { PubSub } from 'src/shared/pub-sub'
-import { ILogger } from '../shared/types'
-import { KVS } from 'src/shared/kvs'
+import { PubSub } from '~/shared/pub-sub'
+import { ILogger } from '~/shared/types'
+import { KVS } from '~/shared/kvs'
 
 declare module '@hapi/hapi' {
   // Hapi user-extensible type for application specific state

@@ -32,8 +32,8 @@ import StateMachine, {
   StateMachineInterface,
   TransitionEvent
 } from 'javascript-state-machine'
-import { KVS } from '../shared/kvs'
-import { ILogger } from 'src/shared/types'
+import { KVS } from '~/shared/kvs'
+import { ILogger } from '~/shared/types'
 
 /**
  * @interface ControlledStateMachine

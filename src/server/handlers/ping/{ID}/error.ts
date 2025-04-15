@@ -1,8 +1,8 @@
 import { Request, ResponseToolkit, ResponseObject } from '@hapi/hapi'
-import { Context } from '../../../plugins'
-import { Message, PubSub } from '../../../../shared/pub-sub'
-import { logger } from '../../../../shared/logger'
-import { PingPongModel } from '../../../../models/outbound/pingPong.model'
+import { Context } from '~/server/plugins'
+import { Message, PubSub } from '~/shared/pub-sub'
+import { logger } from '~/shared/logger'
+import { PingPongModel } from '~/models/outbound/pingPong.model'
 
 export async function put(context: Context, request: Request, h: ResponseToolkit): Promise<ResponseObject> {
   try {

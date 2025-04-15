@@ -30,11 +30,11 @@
 
 import { Request, ResponseToolkit, ResponseObject } from '@hapi/hapi'
 import { Context } from '../plugins'
-import Config from '../../shared/config'
+import Config from '~/shared/config'
 
-import { logger } from '../../shared/logger'
-import { create } from 'src/models/outbound/pingPong.model'
-import { PingPongPostResponse } from 'src/models/outbound/pingPong.interface'
+import { logger } from '~/shared/logger'
+import { create } from '~/models/outbound/pingPong.model'
+import { PingPongPostResponse } from '~/models/outbound/pingPong.interface'
 
 export async function post(_context: Context, request: Request, h: ResponseToolkit): Promise<ResponseObject> {
   try {
