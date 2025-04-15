@@ -14,6 +14,7 @@ module.exports = {
     '@typescript-eslint'
   ],
   rules: {
+    '@typescript-eslint/no-require-imports': 'off',
     '@typescript-eslint/no-explicit-any': 'error',
     'no-console': 'error',
     'quote-props': ['error', 'as-needed'],

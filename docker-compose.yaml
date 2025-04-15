@@ -1,0 +1,15 @@
+version: "3.7"
+
+networks:
+  mojaloop-net:
+    name: mojaloop-net
+
+services:
+  redis:
+    container_name: redis
+    image: "redis:6.2.4-alpine"
+    networks:
+      - mojaloop-net
+    ports:
+      - "6379:6379"
+    restart: always
