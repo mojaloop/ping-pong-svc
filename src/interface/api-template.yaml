@@ -98,7 +98,7 @@ paths:
         - ping
       parameters:
         - $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/parameters/ID.yaml'
-      operationId: PingIDPut
+      operationId: PingIDPutError
       responses:
         '400':
           $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/400.yaml'

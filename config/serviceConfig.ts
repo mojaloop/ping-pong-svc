@@ -30,9 +30,14 @@ export interface ServiceConfig {
   ADMIN_PORT: number
   FSP_PORT: number
   REDIS: {
-    HOST: string
-    PORT: number
-    TIMEOUT: number
+    enabled: boolean
+    type: string
+    connectionConfig: {
+      cluster: Array<{
+        host: string
+        port: number
+      }>
+    }
   }
   HOST: string
   INSPECT?: {

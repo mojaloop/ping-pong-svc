@@ -32,7 +32,7 @@ import StateMachine, {
   StateMachineInterface,
   TransitionEvent
 } from 'javascript-state-machine'
-import { KVS } from '~/shared/kvs'
+import { Util } from '@mojaloop/central-services-shared'
 import { ILogger } from '~/shared/types'
 
 /**
@@ -93,10 +93,10 @@ export interface PersistentModelConfig {
   key: string
 
   /**
-   * @property {KVS} kvs
+   * @property {RedisCache} kvs
    * @description Key-Value storage used to persist model
    */
-  kvs: KVS
+  kvs: Util['Redis']['RedisCache']
 
   /**
    * @property {ILogger} logger
@@ -177,7 +177,7 @@ export class PersistentModel<JSM extends ControlledStateMachine, Data extends St
     return this.config.key
   }
 
-  get kvs(): KVS {
+  get kvs(): Util['Redis']['RedisCache'] {
     return this.config.kvs
   }
 
@@ -212,7 +212,7 @@ export class PersistentModel<JSM extends ControlledStateMachine, Data extends St
    */
   async saveToKVS(): Promise<void> {
     try {
-      const res = await this.kvs.set(this.key, this.data)
+      const res = await this.kvs.set(this.key, JSON.stringify(this.data))
       this.logger.info(`Persisted model in cache: ${this.key}`)
     } catch (err) {
       this.logger.info(`Error saving model: ${this.key}`)
@@ -254,7 +254,11 @@ export async function loadFromKVS<JSM extends ControlledStateMachine, Data exten
   spec: StateMachineConfig
 ): Promise<PersistentModel<JSM, Data>> {
   try {
-    const data = await config.kvs.get<Data>(config.key)
+    const dataString = await config.kvs.get(config.key)
+    if (!dataString) {
+      throw new Error(`No data found in KVS for: ${config.key}`)
+    }
+    const data = JSON.parse(dataString) as Data
     if (!data) {
       throw new Error(`No data found in KVS for: ${config.key}`)
     }

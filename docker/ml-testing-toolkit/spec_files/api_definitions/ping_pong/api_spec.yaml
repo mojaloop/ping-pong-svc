@@ -5,58 +5,6 @@ info:
   description: TBD
   contact: {}
 paths:
-  /health:
-    get:
-      tags:
-        - health
-      responses:
-        '200':
-          $ref: '#/components/responses/200'
-        '400':
-          $ref: '#/components/responses/400'
-        '401':
-          $ref: '#/components/responses/401'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '405':
-          $ref: '#/components/responses/405'
-        '406':
-          $ref: '#/components/responses/406'
-        '501':
-          $ref: '#/components/responses/501'
-        '503':
-          $ref: '#/components/responses/503'
-      operationId: HealthGet
-      summary: Get Server
-      description: The HTTP request GET /health is used to return the current status of the API.
-  /metrics:
-    get:
-      tags:
-        - metrics
-      responses:
-        '200':
-          $ref: '#/components/responses/200'
-        '400':
-          $ref: '#/components/responses/400'
-        '401':
-          $ref: '#/components/responses/401'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '405':
-          $ref: '#/components/responses/405'
-        '406':
-          $ref: '#/components/responses/406'
-        '501':
-          $ref: '#/components/responses/501'
-        '503':
-          $ref: '#/components/responses/503'
-      operationId: MetricsGet
-      summary: Prometheus metrics endpoint
-      description: The HTTP request GET /metrics is used to return metrics for the API.
   /ping:
     post:
       description: |
@@ -135,7 +83,7 @@ paths:
         - ping
       parameters:
         - $ref: '#/components/parameters/ID'
-      operationId: PingIDPutError
+      operationId: PingIDPut
       responses:
         '400':
           $ref: '#/components/responses/400'
@@ -153,6 +101,7 @@ paths:
           $ref: '#/components/responses/501'
         '503':
           $ref: '#/components/responses/503'
+
 components:
   responses:
     '200':

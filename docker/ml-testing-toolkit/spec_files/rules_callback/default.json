@@ -1466,5 +1466,51 @@
     },
     "type": "callback",
     "version": 1
+  },
+  {
+    "ruleId": 36,
+    "priority": 1,
+    "description": "post /ping",
+    "apiVersion": {
+      "minorVersion": 0,
+      "majorVersion": 1,
+      "type": "ping_pong",
+      "asynchronous": true,
+      "specFile": "spec_files/api_definitions/ping_pong/api_spec.yaml",
+      "callbackMapFile": "spec_files/api_definitions/ping_pong/callback_map.json",
+      "responseMapFile": "spec_files/api_definitions/ping_pong/response_map.json",
+      "jsfRefFile": "spec_files/api_definitions/ping_pong/mockRef.json",
+      "triggerTemplatesFolder": "spec_files/api_definitions/ping_pong/trigger_templates"
+    },
+    "conditions": {
+      "all": [
+        {
+          "fact": "operationPath",
+          "operator": "equal",
+          "value": "/ping"
+        },
+        {
+          "fact": "method",
+          "operator": "equal",
+          "value": "post"
+        }
+      ]
+    },
+    "event": {
+      "method": "put",
+      "path": "/ping/{ID}",
+      "params": {
+        "scripts": {
+          "scriptingEngine": "postman"
+        },
+        "body": {
+          "requestId": "{$request.body.requestId}",
+          "jwsVerify": true
+        }
+      },
+      "type": "FIXED_CALLBACK"
+    },
+    "type": "callback",
+    "version": 1
   }
 ]

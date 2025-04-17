@@ -29,17 +29,8 @@ import Config, { ServiceConfig } from '../shared/config'
 import create from './create'
 import start from './start'
 import plugins from './plugins'
-import { RedisConnectionConfig } from '../shared/redis-connection'
-import { PubSub } from '~/shared/pub-sub'
 import { Util } from '@mojaloop/central-services-shared'
-import { KVS } from '~/shared/kvs'
 
-const connection: RedisConnectionConfig = {
-  host: Config.REDIS.HOST,
-  port: Config.REDIS.PORT,
-  timeout: Config.REDIS.TIMEOUT,
-  logger
-}
 
 export default async function run(config: ServiceConfig): Promise<Server[]> {
   // todo: pass logger and oracleDB to run-fn (to avoid hardcoded deps)
@@ -47,16 +38,14 @@ export default async function run(config: ServiceConfig): Promise<Server[]> {
     hubName: Config.HUB_PARTICIPANT.NAME,
     hubNameRegex: Util.HeaderValidation.getHubNameRegex(Config.HUB_PARTICIPANT.NAME)
   })
-  const kvs = new KVS(connection)
+  const kvs = new Util.Redis.RedisCache(Config.REDIS.connectionConfig)
   await kvs.connect()
-  const subscriber = new PubSub(connection)
-  await subscriber.connect()
-  const adminServer = await create({...config, PORT: config.ADMIN_PORT}, { logger, subscriber, kvs })
+  const pubSub = new Util.Redis.PubSub(Config.REDIS.connectionConfig)
+  await pubSub.connect()
+  const adminServer = await create({...config, PORT: config.ADMIN_PORT}, { logger, pubSub, kvs })
   await plugins.registerAdmin(adminServer)
 
-  const publisher = new PubSub(connection)
-  await publisher.connect()
-  const fspServer = await create({...config, PORT: config.FSP_PORT}, { logger, publisher, kvs })
+  const fspServer = await create({...config, PORT: config.FSP_PORT}, { logger, pubSub, kvs })
   await plugins.registerFsp(fspServer)
 
   await Promise.all([start(fspServer), start(adminServer)])

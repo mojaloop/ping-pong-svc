@@ -31,13 +31,12 @@ import {
   PingPongPostResponse,
   PingPongStateMachine
 } from './pingPong.interface'
-import { Message, PubSub } from '~/shared/pub-sub'
 import { PersistentModel } from '../persistent.model'
 import { StateMachineConfig } from 'javascript-state-machine'
 
 import inspect from '~/shared/inspect'
 import SDK from '@mojaloop/sdk-standard-components';
-import { Util } from '@mojaloop/central-services-shared'
+import CentralServicesShared, { Util } from '@mojaloop/central-services-shared'
 import { Enum } from '@mojaloop/central-services-shared'
 
 export class PingPongModel extends PersistentModel<PingPongStateMachine, PingPongData> {
@@ -57,7 +56,7 @@ export class PingPongModel extends PersistentModel<PingPongStateMachine, PingPon
   }
 
   // getters
-  get subscriber(): PubSub {
+  get subscriber(): Util['Redis']['PubSub'] {
     return this.config.subscriber
   }
 
@@ -94,7 +93,7 @@ export class PingPongModel extends PersistentModel<PingPongStateMachine, PingPon
   async onRequestPing(): Promise<void> {
     console.log(this.data.requestId)
     const channel = PingPongModel.notificationChannel(this.data.requestId)
-    const subscriber: PubSub = this.subscriber
+    const subscriber: Util['Redis']['PubSub'] = this.subscriber
     const hubName = this.config.appConfig.HUB_PARTICIPANT.NAME
     const fspiopDestination = this.data.request.headers['fspiop-destination']
     const fspiopSignature = this.data.request.headers['fspiop-signature']
@@ -108,22 +107,22 @@ export class PingPongModel extends PersistentModel<PingPongStateMachine, PingPon
 
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve, reject) => {
-      let subId = 0
+      let subId = null
       try {
         // in handlers/inbound is implemented UpdateAccountsByUserId handler
         // which publish postPing response to channel
-        subId = subscriber.subscribe(channel, async (channel: string, message: Message, sid: number) => {
+        subId = subscriber.subscribe(channel, async (message: any) => {
           this.logger.debug(`Received message on channel: ${channel}`)
           // first unsubscribe
-          subscriber.unsubscribe(channel, sid)
+          subscriber.unsubscribe(channel)
 
           const putResponse = message as any
           this.data.response = putResponse
-          resolve
+          resolve()
         })
 
         await Util.Request.sendRequest({
-          url: participantEndpoint,
+          url: participantEndpoint + '/ping',
           source: hubName,
           destination: fspiopDestination,
           headers: {
@@ -132,12 +131,12 @@ export class PingPongModel extends PersistentModel<PingPongStateMachine, PingPon
             'fspiop-signature': fspiopSignature,
           },
           jwsSigner: this.getJWSSigner(hubName),
-          method: 'POST',
+          method: CentralServicesShared.Enum.Http.RestMethods.POST,
           payload: this.data.request.payload,
           hubNameRegex: Util.HeaderValidation.getHubNameRegex(hubName),
         })
       } catch (error) {
-        subscriber.unsubscribe(channel, subId)
+        subscriber.unsubscribe(channel)
         reject(error)
       }
     })

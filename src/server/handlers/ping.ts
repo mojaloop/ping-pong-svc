@@ -39,7 +39,7 @@ import { PingPongPostResponse } from '~/models/outbound/pingPong.interface'
 export async function post(_context: Context, request: Request, h: ResponseToolkit): Promise<ResponseObject> {
   try {
     // @ts-ignore
-    const subscriber = request.server.app.subscriber
+    const subscriber = request.server.app.pubSub
     // @ts-ignore
     const kvs = request.server.app.kvs
     const model = await create(

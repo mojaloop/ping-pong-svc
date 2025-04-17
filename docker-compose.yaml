@@ -32,36 +32,22 @@ services:
     environment:
       - NODE_ENV=production
     depends_on:
-      redis:
+      redis-node-0:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3300/health"]
+      test: ["CMD", "sh", "-c" ,"apk --no-cache add curl", ";", "curl", "http://localhost:3200/health"]
       interval: 30s
       timeout: 10s
       retries: 5
 
-  redis:
-    container_name: redis
-    image: "redis:6.2.4-alpine"
-    networks:
-      - mojaloop-net
-    ports:
-      - "6379:6379"
-    restart: always
-    healthcheck:
-      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
-      interval: 1s
-      timeout: 3s
-      retries: 5
 
   central-ledger:
     image: mojaloop/central-ledger:v17.8.0-snapshot.34
-    container_name: als_central-ledger
     user: root
     command:
       - "sh"
       - "-c"
-      - "sh /opt/wait-for/wait-for-central-ledger.sh && node src/api/index.js"
+      - "node src/api/index.js"
     ports:
       - "${CL_PORT:-3001}:3001"
     volumes:
@@ -69,15 +55,18 @@ services:
        - ./docker/wait-for:/opt/wait-for
     environment:
       - LOG_LEVEL=debug
-      - CLEDG_DATABASE_URI=mysql://central_ledger:password@mysql-cl:3306/central_ledger
+      - CLEDG_DATABASE_URI=mysql://central_ledger:password@mysql:3306/central_ledger
       - CLEDG_SIDECAR__DISABLED=true
       - CLEDG_MONGODB__DISABLED=true
     networks:
       - mojaloop-net
     depends_on:
-      - mysql-cl
-      - kafka
-      - redis-node-0
+      mysql:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      redis-node-0:
+        condition: service_healthy
     extra_hosts:
       - "redis-node-0:host-gateway"
     healthcheck:
@@ -86,32 +75,58 @@ services:
       retries: 10
       interval: 30s
 
-  kafka:
-    image: johnnypark/kafka-zookeeper:2.3.0
-    container_name: als_kafka
-    volumes:
-      - ./docker/kafka/:/opt/kafka_2.12-2.3.0/config/
-    ports:
-      - "2181:2181"
-      - "9092:9092"
-    environment:
-      - ZOO_LOG4J_PROP=WARN
+  kafka-provisioning:
+    container_name: kafka-provisioning
     networks:
       - mojaloop-net
+    image: docker.io/bitnami/kafka:${DEP_KAFKA_VERSION}
+    depends_on:
+      - kafka
+    volumes:
+      - ./docker/kafka/scripts:/tmp/kafka/scripts
+    command: bash /tmp/kafka/scripts/provision.sh
+
+  kafka:
+    networks:
+      - mojaloop-net
+    image: docker.io/bitnami/kafka:${DEP_KAFKA_VERSION}
+    container_name: kafka
+    # ports:
+    #   - "9092:9092"
+    environment:
+      # BITNAMI_DEBUG: "yes"
+      ALLOW_PLAINTEXT_LISTENER: "yes"
+      KAFKA_ADVERTISED_HOST_NAME: kafka
+      KAFKA_CFG_LISTENERS: CONTROLLER://:9093,LISTENER_DOCKER://kafka:29092,LISTENER_EXTERN://:9092
+      KAFKA_CFG_ADVERTISED_LISTENERS: LISTENER_DOCKER://kafka:29092,LISTENER_EXTERN://localhost:9092
+      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,LISTENER_DOCKER:PLAINTEXT,LISTENER_EXTERN:PLAINTEXT
+      KAFKA_CFG_INTER_BROKER_LISTENER_NAME: LISTENER_DOCKER
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_CFG_MESSAGE_MAX_BYTES: 200000000
+      KAFKA_CFG_NODE_ID: 1
+      KAFKA_CFG_PROCESS_ROLES: broker,controller
+      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@127.0.0.1:9093
+      KAFKA_ENABLE_KRAFT: "true"
     healthcheck:
-      test: ["CMD", "/opt/kafka_2.12-2.3.0/bin/kafka-broker-api-versions.sh", "--bootstrap-server", "kafka:29092"]
+      test: ["CMD" ,"/opt/bitnami/kafka/bin/kafka-broker-api-versions.sh","--bootstrap-server","kafka:9092"]
       timeout: 20s
       retries: 10
       start_period: 40s
       interval: 30s
 
-  mysql-cl:
+  mysql:
     image: mysql/mysql-server
-    container_name: als_mysql_central_ledger
+    deploy:
+      replicas: 1
+    # Disable logging as it is far too verbose for debugging locally
+    logging:
+      driver: none
     ports:
-      - "3307:3306"
+      - "3306:3306"
     volumes:
-      - ./docker/sql-init-central-ledger/:/docker-entrypoint-initdb.d/
+      # Note: this fixes the permissions issue, but docker-compose up will fail on first attempt
+      - ./docker/sql-init/:/docker-entrypoint-initdb.d/
     environment:
       - MYSQL_USER=${DBUSER:-central_ledger}
       - MYSQL_PASSWORD=${DBPASS:-password}
@@ -120,7 +135,7 @@ services:
     networks:
       - mojaloop-net
     healthcheck:
-      test: ["CMD", "mysqladmin" ,"ping", "-h", "mysql-cl"]
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "mysql"]
       timeout: 20s
       retries: 10
       start_period: 40s
@@ -138,41 +153,49 @@ services:
       - redis-node-3
       - redis-node-4
       - redis-node-5
+    ports:
+      - "6379:6379"
+      - "16379:16379"
   redis-node-1:
     <<: *REDIS_NODE
     environment:
       <<: *REDIS_ENVS
-      REDIS_PORT_NUMBER: 6380
+      REDIS_PORT_NUMBER: 9301
     ports:
-      - "16380:16380"
+      - "9301:9301"
+      - "19301:19301"
   redis-node-2:
     <<: *REDIS_NODE
     environment:
       <<: *REDIS_ENVS
-      REDIS_PORT_NUMBER: 6381
+      REDIS_PORT_NUMBER: 9302
     ports:
-      - "16381:16381"
+      - "9302:9302"
+      - "19302:19302"
   redis-node-3:
     <<: *REDIS_NODE
     environment:
       <<: *REDIS_ENVS
-      REDIS_PORT_NUMBER: 6382
+      REDIS_PORT_NUMBER: 9303
     ports:
-      - "16382:16382"
+      - "9303:9303"
+      - "19303:19303"
   redis-node-4:
     <<: *REDIS_NODE
     environment:
       <<: *REDIS_ENVS
-      REDIS_PORT_NUMBER: 6383
+      REDIS_PORT_NUMBER: 9304
     ports:
-      - "16383:16383"
+      - "9304:9304"
+      - "19304:19304"
   redis-node-5:
     <<: *REDIS_NODE
     environment:
       <<: *REDIS_ENVS
-      REDIS_PORT_NUMBER: 6384
+      REDIS_PORT_NUMBER: 9305
     ports:
-      - "16384:16384"
+      - "9305:9305"
+      - "19305:19305"
 
   mojaloop-testing-toolkit:
     image: mojaloop/ml-testing-toolkit:${TEST_TTK_SVC_VERSION}
@@ -196,9 +219,6 @@ services:
       timeout: 10s
       start_period: 10s
       retries: 10
-    profiles:
-      - testing-toolkit
-      - all-services
 
   mojaloop-testing-toolkit-ui:
     image: mojaloop/ml-testing-toolkit-ui:${TEST_TTK_UI_VERSION}
@@ -214,9 +234,6 @@ services:
     user: root
     networks:
       - mojaloop-net
-    profiles:
-      - testing-toolkit
-      - all-services
 
   ttk-provisioning:
     image: mojaloop/ml-testing-toolkit-client-lib:${TEST_TTK_CLI_VERSION}
@@ -229,16 +246,16 @@ services:
         condition: service_healthy
       central-ledger:
         condition: service_healthy
-      central-handler-position-batch:
-        condition: service_healthy
-      ml-api-adapter:
-        condition: service_healthy
-      account-lookup-service:
-        condition: service_healthy
-      quoting-service:
-        condition: service_healthy
-      quoting-service-handler:
-        condition: service_healthy
+      #central-handler-position-batch:
+      #  condition: service_healthy
+      #ml-api-adapter:
+      #  condition: service_healthy
+      #account-lookup-service:
+      #  condition: service_healthy
+      #quoting-service:
+      #  condition: service_healthy
+      #quoting-service-handler:
+      #  condition: service_healthy
     networks:
       - mojaloop-net
     command:
@@ -246,5 +263,3 @@ services:
       - -c
       - "npm run cli -- -u http://mojaloop-testing-toolkit:5050 -l 2 -i collections/provisioning -e environments/default-env.json --labels std --save-report true --report-format html --report-target file://reports/ttk-provisioning-report.html"
     user: root
-    profiles:
-      - ttk-provisioning

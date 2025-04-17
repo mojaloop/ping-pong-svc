@@ -84,6 +84,12 @@
       "asynchronous": true
     },
     {
+      "type": "ping_pong",
+      "version": "1.0",
+      "folderPath": "ping_pong",
+      "asynchronous": true
+    },
+    {
       "type": "sdk-scheme-adapter-backend-v2_1_0-openapi3-snippets",
       "version": "2.1",
       "folderPath": "sdk-scheme-adapter-backend-v2_1_0-openapi3-snippets_2.1",

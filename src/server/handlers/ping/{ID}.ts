@@ -1,6 +1,6 @@
 import { Request, ResponseToolkit, ResponseObject } from '@hapi/hapi'
 import { Context } from '~/server/plugins'
-import { Message, PubSub } from '~/shared/pub-sub'
+import { Util } from '@mojaloop/central-services-shared'
 import { logger } from '~/shared/logger'
 import { PingPongModel } from '~/models/outbound/pingPong.model'
 
@@ -16,8 +16,8 @@ export async function put(context: Context, request: Request, h: ResponseToolkit
     const channel = PingPongModel.notificationChannel(ID)
 
     // @ts-ignore
-    const publisher: PubSub = request.server.app.publisher
-    await publisher.publish(channel, payload as unknown as Message)
+    const publisher: Util['Redis']['PubSub'] = request.server.app.pubSub
+    await publisher.publish(channel, payload as unknown as any)
     logger.info(`Payload published to channel: ${channel}`)
 
     return h.response({ status: 'success', channel }).code(200)

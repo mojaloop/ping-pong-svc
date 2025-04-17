@@ -1,16 +1,14 @@
 'use strict'
 
-import { PubSub } from '~/shared/pub-sub'
 import { ILogger } from '~/shared/types'
-import { KVS } from '~/shared/kvs'
+import { Util } from '@mojaloop/central-services-shared'
 
 declare module '@hapi/hapi' {
   // Hapi user-extensible type for application specific state
   interface ServerApplicationState {
     logger: ILogger
-    publisher: PubSub
-    subscriber: PubSub // Ensure this is correctly defined
-    kvs: KVS
+    pubSub: Util['Redis']['PubSub']
+    kvs: Util['Redis']['RedisCache']
     // add other cross-app deps, if needed
   }
 }

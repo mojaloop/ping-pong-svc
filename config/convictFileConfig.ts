@@ -36,9 +36,14 @@ export interface FileConfig {
   FSP_PORT: number
   HOST: string
   REDIS: {
-    HOST: string
-    PORT: number
-    TIMEOUT: number
+    enabled: boolean
+    type: string
+    connectionConfig: {
+      cluster: Array<{
+        host: string
+        port: number
+      }>
+    }
   }
   INSPECT: {
     DEPTH: number
@@ -98,20 +103,29 @@ const ConvictFileConfig = Convict<FileConfig>({
     }
   },
   REDIS: {
-    HOST: {
+    enabled: {
+      format: Boolean,
+      default: false,
+      env: ENV_PREFIX + 'REDIS_ENABLED'
+    },
+    type: {
       format: String,
-      default: 'localhost',
-      env: ENV_PREFIX + 'REDIS_HOST'
+      default: 'cluster',
+      env: ENV_PREFIX + 'REDIS_TYPE'
     },
-    PORT: {
-      format: Number,
-      default: 6379,
-      env: ENV_PREFIX + 'REDIS_PORT'
-    },
-    TIMEOUT: {
-      format: Number,
-      default: 1000,
-      env: ENV_PREFIX + 'REDIS_TIMEOUT'
+    connectionConfig: {
+      cluster: [{
+        host: {
+          format: String,
+          default: 'localhost',
+          env: ENV_PREFIX + 'REDIS_HOST'
+        },
+        port: {
+          format: Number,
+          default: 6379,
+          env: ENV_PREFIX + 'REDIS_PORT'
+        }
+      }]
     }
   },
   SWITCH_ENDPOINT: {

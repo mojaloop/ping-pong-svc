@@ -1,6 +1,6 @@
 {
   "VERSION": 1,
-  "CALLBACK_ENDPOINT": "http://mojaloop-testing-toolkit:4040",
+  "CALLBACK_ENDPOINT": "http://ping-pong-svc:3300",
   "CALLBACK_RESOURCE_ENDPOINTS": {
     "enabled": true,
     "endpoints": [

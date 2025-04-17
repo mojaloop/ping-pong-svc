@@ -97,7 +97,7 @@ paths:
         - ping
       parameters:
         - $ref: '#/components/parameters/ID'
-      operationId: PingIDPut
+      operationId: PingIDPutError
       responses:
         '400':
           $ref: '#/components/responses/400'

@@ -28,8 +28,9 @@
 
 import { ControlledStateMachine, PersistentModelConfig, StateData } from '../persistent.model'
 import { Method } from 'javascript-state-machine'
-import { PubSub } from '~/shared/pub-sub'
 import { ServiceConfig } from 'config/serviceConfig'
+import { Util } from '@mojaloop/central-services-shared'
+
 
 export enum PingPongModelState {
   start = 'WAITING_FOR_PING_REQUEST',
@@ -48,7 +49,7 @@ export interface PingPongStateMachine extends ControlledStateMachine {
 
 export interface PingPongModelConfig extends PersistentModelConfig {
   appConfig: ServiceConfig
-  subscriber: PubSub
+  subscriber: Util['Redis']['PubSub']
 }
 
 export interface PingPongData extends StateData {

@@ -30,7 +30,7 @@ declare module '@mojaloop/central-services-error-handling'{
     FSPIOPErrorCodes: Record<Uppercase<string>, { code: string, message: string }>;
   };
 }
-declare module '@mojaloop/central-services-shared'
+//declare module '@mojaloop/central-services-shared'
 declare module '@mojaloop/central-services-shared/src/util/hapi'
 declare module '@mojaloop/central-services-metrics'
 

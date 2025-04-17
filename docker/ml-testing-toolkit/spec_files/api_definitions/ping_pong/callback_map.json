@@ -1,0 +1,34 @@
+{
+  "/ping": {
+    "post": {
+      "successCallback": {
+        "method": "put",
+        "path": "/ping/{ID}",
+        "pathPattern": "/ping/{$request.body.requestId}",
+        "headerOverride": {
+          "FSPIOP-Source": "{$request.body.fspiop-destination}",
+          "FSPIOP-Destination": "{$request.headers.fspiop-source}",
+          "Date": "{$request.headers.date}"
+        },
+        "bodyOverride": {
+          "requestId": "{$request.body.requestId}",
+          "jwsValid": true
+        }
+      },
+      "errorCallback": {
+        "method": "put",
+        "path": "/ping/{ID}/error",
+        "pathPattern": "/ping/{$request.body.requestId}/error",
+        "headerOverride": {
+          "FSPIOP-Source": "{$request.body.fspiop-destination}",
+          "FSPIOP-Destination": "{$request.headers.fspiop-source}",
+          "Date": "{$request.headers.date}"
+        },
+        "bodyOverride": {
+          "requestId": "{$request.body.requestId}",
+          "jwsValid": false
+        }
+      }
+    }
+  }
+}

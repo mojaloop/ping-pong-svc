@@ -95,3 +95,63 @@ paths:
           $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/501.yaml'
         '503':
           $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/503.yaml'
+  /ping/{ID}:
+    put:
+      description: |
+        TBD
+      summary: Look up participant information
+      tags:
+        - participants
+        - ping
+      parameters:
+        - $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/parameters/ID.yaml'
+      operationId: PingIDPut
+      responses:
+        '200':
+          $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/200.yaml'
+        '400':
+          $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/400.yaml'
+        '401':
+          $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/401.yaml'
+        '403':
+          $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/403.yaml'
+        '404':
+          $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/404.yaml'
+        '405':
+          $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/405.yaml'
+        '406':
+          $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/406.yaml'
+        '501':
+          $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/501.yaml'
+        '503':
+          $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/503.yaml'
+
+  /ping/{ID}/error:
+    put:
+      description: |
+        TBD
+      summary: Look up participant information
+      tags:
+        - participants
+        - ping
+      parameters:
+        - $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/parameters/ID.yaml'
+      operationId: PingIDPutError
+      responses:
+        '400':
+          $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/400.yaml'
+        '401':
+          $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/401.yaml'
+        '403':
+          $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/403.yaml'
+        '404':
+          $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/404.yaml'
+        '405':
+          $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/405.yaml'
+        '406':
+          $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/406.yaml'
+        '501':
+          $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/501.yaml'
+        '503':
+          $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/503.yaml'
+
