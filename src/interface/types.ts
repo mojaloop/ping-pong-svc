@@ -1,7 +1,7 @@
-'use strict'
+'use strict';
 
-import { ILogger } from '~/shared/types'
-import { Util } from '@mojaloop/central-services-shared'
+import { ILogger } from '~/shared/types';
+import { Util } from '@mojaloop/central-services-shared';
 
 declare module '@hapi/hapi' {
   // Hapi user-extensible type for application specific state

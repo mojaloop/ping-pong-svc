@@ -26,8 +26,8 @@
  --------------
  ******/
 
-import { logger } from '~/shared/logger'
-import { ILogger } from '~/shared/types'
+import { logger } from '~/shared/logger';
+import { ILogger } from '~/shared/types';
 
 export default function mockLogger(keepQuiet = true): ILogger {
   if (keepQuiet) {
@@ -45,12 +45,12 @@ export default function mockLogger(keepQuiet = true): ILogger {
       trace: jest.fn(),
       info: jest.fn(),
       fatal: jest.fn()
-    }
+    };
     return {
       ...methods,
       push: jest.fn(() => methods)
-    } as unknown as ILogger
+    } as unknown as ILogger;
   }
   // let be elaborative and log to console
-  return logger
+  return logger;
 }

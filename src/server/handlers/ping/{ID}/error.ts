@@ -7,8 +7,8 @@ import { Util } from '@mojaloop/central-services-shared'
 export async function put(context: Context, request: Request, h: ResponseToolkit): Promise<ResponseObject> {
   try {
     const { ID } = request.params
-    const payload = request.payload
-
+    const body = request.payload
+    const headers = request.headers
     if (!ID) {
       return h.response({ error: "'ID' parameter is required" }).code(400)
     }
@@ -17,8 +17,9 @@ export async function put(context: Context, request: Request, h: ResponseToolkit
 
     // @ts-ignore
     const publisher: Util['Redis']['PubSub'] = request.server.app.pubSub
-
-    await publisher.publish(channel, payload as unknown as any)
+    // return original request headers and body
+    // so dfspWatcher can validate jws
+    await publisher.publish(channel, { headers, body })
     logger.info(`Payload published to channel: ${channel}`)
 
     return h.response({ status: 'success', channel }).code(200)

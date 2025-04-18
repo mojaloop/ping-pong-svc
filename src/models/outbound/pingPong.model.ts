@@ -117,7 +117,10 @@ export class PingPongModel extends PersistentModel<PingPongStateMachine, PingPon
           subscriber.unsubscribe(channel)
 
           const putResponse = message as any
-          this.data.response = putResponse
+          this.data.response = {
+            requestId: this.data.requestId,
+            fspPutResponse: putResponse
+          }
           resolve()
         })
 

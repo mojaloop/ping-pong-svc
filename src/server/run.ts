@@ -23,28 +23,28 @@
  --------------
  ******/
 
-import { Server } from '@hapi/hapi'
-import { logger } from '../shared/logger'
-import Config, { ServiceConfig } from '../shared/config'
-import create from './create'
-import start from './start'
-import plugins from './plugins'
-import { Util } from '@mojaloop/central-services-shared'
+import { Server } from '@hapi/hapi';
+import { logger } from '../shared/logger';
+import Config, { ServiceConfig } from '../shared/config';
+import create from './create';
+import start from './start';
+import plugins from './plugins';
+import { Util } from '@mojaloop/central-services-shared';
 
 
 export default async function run(config: ServiceConfig): Promise<Server> {
   await Util.Endpoints.initializeCache(Config.CENTRAL_SHARED_ENDPOINT_CACHE_CONFIG, {
     hubName: Config.HUB_PARTICIPANT.NAME,
     hubNameRegex: Util.HeaderValidation.getHubNameRegex(Config.HUB_PARTICIPANT.NAME)
-  })
-  const kvs = new Util.Redis.RedisCache(Config.REDIS.connectionConfig)
-  const pubSub = new Util.Redis.PubSub(Config.REDIS.connectionConfig)
+  });
+  const kvs = new Util.Redis.RedisCache(Config.REDIS.connectionConfig);
+  const pubSub = new Util.Redis.PubSub(Config.REDIS.connectionConfig);
 
-  await kvs.connect()
-  await pubSub.connect()
+  await kvs.connect();
+  await pubSub.connect();
 
-  const server = await create({...config }, { logger, pubSub, kvs })
-  await plugins.register(server)
-  await start(server)
-  return server
+  const server = await create({...config }, { logger, pubSub, kvs });
+  await plugins.register(server);
+  await start(server);
+  return server;
 }

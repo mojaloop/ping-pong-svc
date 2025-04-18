@@ -40,6 +40,7 @@ export enum PingPongModelState {
 
 export interface PingPongPostResponse {
   requestId: string
+  fspPutResponse: any
 }
 
 export interface PingPongStateMachine extends ControlledStateMachine {

@@ -62,7 +62,19 @@ describe('Ping Handler', () => {
   })
 
   it('should return a 200 response with the result when the model runs successfully', async () => {
-    const mockResult: PingPongPostResponse = { requestId: 'test-request-id' }
+    const mockResult: PingPongPostResponse = {
+      requestId: 'test-request-id',
+      fspPutResponse: {
+        headers: {
+          'fspiop-source': 'test-source',
+          'fspiop-destination': 'test-destination',
+          'fspiop-signature': 'test-signature',
+        },
+        payload: {
+          requestId: 'test-request-id'
+        }
+      },
+    }
     ;(create as jest.Mock).mockResolvedValue({
       run: jest.fn().mockResolvedValue(mockResult),
     })

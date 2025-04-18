@@ -27,7 +27,7 @@
  --------------
  ******/
 
-import { Logger } from '@mojaloop/sdk-standard-components'
+import { Logger } from '@mojaloop/sdk-standard-components';
 
 // default SDKLogger instance
-export const logger = Logger.loggerFactory({ context: 'PingPongSvc' })
+export const logger = Logger.loggerFactory({ context: 'PingPongSvc' });

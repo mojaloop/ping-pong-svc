@@ -28,8 +28,8 @@
  --------------
  ******/
 
-import PACKAGE from '../../package.json'
-import Config, { ServiceConfig } from '../../config/serviceConfig'
+import PACKAGE from '../../package.json';
+import Config, { ServiceConfig } from '../../config/serviceConfig';
 
-export default Config
-export { PACKAGE, ServiceConfig }
+export default Config;
+export { PACKAGE, ServiceConfig };

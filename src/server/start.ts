@@ -20,12 +20,11 @@
  --------------
  ******/
 
-import { Server } from '@hapi/hapi'
-import { name, version } from '../../package.json'
+import { Server } from '@hapi/hapi';
+import { name, version } from '../../package.json';
 
 export default async function start(server: Server): Promise<Server> {
-  await server.start()
-  // @ts-ignore
-  server.app.logger.info(`${name}@${version} is running on ${server.info.uri}`)
-  return server
+  await server.start();
+  server.app.logger.info(`${name}@${version} is running on ${server.info.uri}`);
+  return server;
 }

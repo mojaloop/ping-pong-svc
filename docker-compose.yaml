@@ -24,7 +24,6 @@ services:
     container_name: ping-pong-svc
     ports:
       - "3300:3300"
-      - "3301:3301"
     networks:
       - mojaloop-net
     volumes:

@@ -31,9 +31,9 @@ import StateMachine, {
   StateMachineConfig,
   StateMachineInterface,
   TransitionEvent
-} from 'javascript-state-machine'
-import { Util } from '@mojaloop/central-services-shared'
-import { ILogger } from '~/shared/types'
+} from 'javascript-state-machine';
+import { Util } from '@mojaloop/central-services-shared';
+import { ILogger } from '~/shared/types';
 
 /**
  * @interface ControlledStateMachine
@@ -117,19 +117,19 @@ export class PersistentModel<JSM extends ControlledStateMachine, Data extends St
    * @description specified model's dependencies
    *              declared readonly, because it should be only setup at construction
    */
-  protected readonly config: PersistentModelConfig
+  protected readonly config: PersistentModelConfig;
 
   /**
    * @property {<JSM>} fsm
    * @description  Final State Machine instance which handles/executes workflow's state transitions
    */
-  public readonly fsm: JSM
+  public readonly fsm: JSM;
 
   /**
    * @property {<Data>} data
    * @description state data instance
    */
-  public data: Data
+  public data: Data;
 
   /**
    * @param {<Data>} data - initial state data
@@ -138,9 +138,9 @@ export class PersistentModel<JSM extends ControlledStateMachine, Data extends St
    */
   constructor(data: Data, config: PersistentModelConfig, specOrig: StateMachineConfig) {
     // flat copy of parameters
-    this.data = { ...data }
-    this.config = { ...config }
-    const spec = { ...specOrig }
+    this.data = { ...data };
+    this.config = { ...config };
+    const spec = { ...specOrig };
 
     // prepare transition methods
     spec.methods = {
@@ -150,7 +150,7 @@ export class PersistentModel<JSM extends ControlledStateMachine, Data extends St
 
       // copy methods from received state machine specification
       ...spec.methods
-    }
+    };
 
     // prepare transitions' specification
     spec.transitions = [
@@ -159,26 +159,26 @@ export class PersistentModel<JSM extends ControlledStateMachine, Data extends St
 
       // copy transitions from received state machine specification
       ...spec.transitions
-    ]
+    ];
 
     // propagate state from data.currentState, then spec.init and use 'none' as default
-    spec.init = (data.currentState || spec.init || 'none') as string
+    spec.init = (data.currentState || spec.init || 'none') as string;
 
     // create a new state machine instance
-    this.fsm = new StateMachine(spec) as JSM
+    this.fsm = new StateMachine(spec) as JSM;
   }
 
   // accessors to config properties
   get logger(): ILogger {
-    return this.config.logger
+    return this.config.logger;
   }
 
   get key(): string {
-    return this.config.key
+    return this.config.key;
   }
 
   get kvs(): Util['Redis']['RedisCache'] {
-    return this.config.kvs
+    return this.config.kvs;
   }
 
   /**
@@ -187,9 +187,9 @@ export class PersistentModel<JSM extends ControlledStateMachine, Data extends St
    * @param {TransitionEvent<JSM>)} event - transition's event description
    */
   async onAfterTransition(event: TransitionEvent<JSM>): Promise<void> {
-    this.logger.info(`State machine transitioned '${event.transition}': ${event.from} -> ${event.to}`)
+    this.logger.info(`State machine transitioned '${event.transition}': ${event.from} -> ${event.to}`);
     // update internal state data
-    this.data.currentState = event.to
+    this.data.currentState = event.to;
   }
 
   /**
@@ -202,7 +202,7 @@ export class PersistentModel<JSM extends ControlledStateMachine, Data extends St
   onPendingTransition(transition: string): void {
     // allow transitions to 'error' state while other transitions are in progress
     if (transition !== 'error') {
-      throw new Error(`Transition '${transition}' requested while another transition is in progress.`)
+      throw new Error(`Transition '${transition}' requested while another transition is in progress.`);
     }
   }
 
@@ -213,14 +213,14 @@ export class PersistentModel<JSM extends ControlledStateMachine, Data extends St
   async saveToKVS(): Promise<void> {
     try {
       if (typeof this.data == 'object') {
-        await this.kvs.set(this.key, JSON.stringify(this.data))
+        await this.kvs.set(this.key, JSON.stringify(this.data));
       } else {
-        await this.kvs.set(this.key, this.data)
+        await this.kvs.set(this.key, this.data);
       }
-      this.logger.info(`Persisted model in cache: ${this.key}`)
+      this.logger.info(`Persisted model in cache: ${this.key}`);
     } catch (err) {
-      this.logger.info(`Error saving model: ${this.key}`)
-      throw err
+      this.logger.info(`Error saving model: ${this.key}`);
+      throw err;
     }
   }
 }
@@ -239,11 +239,11 @@ export async function create<JSM extends ControlledStateMachine, Data extends St
   spec: StateMachineConfig
 ): Promise<PersistentModel<JSM, Data>> {
   // create a new model
-  const model = new PersistentModel<JSM, Data>(data, config, spec)
+  const model = new PersistentModel<JSM, Data>(data, config, spec);
 
   // enforce to finish any transition to state specified by data.currentState or spec.init
-  await model.fsm.state
-  return model
+  await model.fsm.state;
+  return model;
 }
 
 /**
@@ -258,23 +258,23 @@ export async function loadFromKVS<JSM extends ControlledStateMachine, Data exten
   spec: StateMachineConfig
 ): Promise<PersistentModel<JSM, Data>> {
   try {
-    const dataString = await config.kvs.get(config.key)
+    const dataString = await config.kvs.get(config.key);
     if (!dataString) {
-      throw new Error(`No data found in KVS for: ${config.key}`)
+      throw new Error(`No data found in KVS for: ${config.key}`);
     }
-    let data
+    let data;
     if (typeof dataString == 'string') {
-      data = JSON.parse(dataString) as Data
+      data = JSON.parse(dataString) as Data;
     } else {
-      data = dataString as Data
+      data = dataString as Data;
     }
     if (!data) {
-      throw new Error(`No data found in KVS for: ${config.key}`)
+      throw new Error(`No data found in KVS for: ${config.key}`);
     }
-    config.logger.info('data loaded from KVS')
-    return new PersistentModel<JSM, Data>(data, config, spec)
+    config.logger.info('data loaded from KVS');
+    return new PersistentModel<JSM, Data>(data, config, spec);
   } catch (err) {
-    config.logger.info(`Error loading data from KVS for key: ${config.key}`)
-    throw err
+    config.logger.info(`Error loading data from KVS for key: ${config.key}`);
+    throw err;
   }
 }

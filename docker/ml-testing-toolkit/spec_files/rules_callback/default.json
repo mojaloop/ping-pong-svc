@@ -1504,8 +1504,7 @@
           "scriptingEngine": "postman"
         },
         "body": {
-          "requestId": "{$request.body.requestId}",
-          "jwsVerify": true
+          "requestId": "{$request.body.requestId}"
         }
       },
       "type": "FIXED_CALLBACK"
