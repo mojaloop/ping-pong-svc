@@ -59,15 +59,11 @@ paths:
       description: The HTTP request GET /metrics is used to return metrics for the API.
   /ping:
     post:
-      description: |
-        TBD
-      summary: Look up participant information
+      summary: Endpoint to trigger a ping to a participant
       tags:
-        - participants
         - ping
       operationId: PingPost
       requestBody:
-        description: TBD.
         required: true
         content:
           application/json:
@@ -97,11 +93,8 @@ paths:
           $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/503.yaml'
   /ping/{ID}:
     put:
-      description: |
-        TBD
-      summary: Look up participant information
+      summary: Endpoint for receiving response from a participant
       tags:
-        - participants
         - ping
       parameters:
         - $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/parameters/ID.yaml'
@@ -127,11 +120,8 @@ paths:
           $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/503.yaml'
   /ping/{ID}/error:
     put:
-      description: |
-        TBD
-      summary: Look up participant information
+      summary: Endpoint for receiving error response from a participant
       tags:
-        - participants
         - ping
       parameters:
         - $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/parameters/ID.yaml'
