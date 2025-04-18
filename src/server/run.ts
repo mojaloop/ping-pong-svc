@@ -32,22 +32,19 @@ import plugins from './plugins'
 import { Util } from '@mojaloop/central-services-shared'
 
 
-export default async function run(config: ServiceConfig): Promise<Server[]> {
-  // todo: pass logger and oracleDB to run-fn (to avoid hardcoded deps)
+export default async function run(config: ServiceConfig): Promise<Server> {
   await Util.Endpoints.initializeCache(Config.CENTRAL_SHARED_ENDPOINT_CACHE_CONFIG, {
     hubName: Config.HUB_PARTICIPANT.NAME,
     hubNameRegex: Util.HeaderValidation.getHubNameRegex(Config.HUB_PARTICIPANT.NAME)
   })
   const kvs = new Util.Redis.RedisCache(Config.REDIS.connectionConfig)
-  await kvs.connect()
   const pubSub = new Util.Redis.PubSub(Config.REDIS.connectionConfig)
+
+  await kvs.connect()
   await pubSub.connect()
-  const adminServer = await create({...config, PORT: config.ADMIN_PORT}, { logger, pubSub, kvs })
-  await plugins.registerAdmin(adminServer)
 
-  const fspServer = await create({...config, PORT: config.FSP_PORT}, { logger, pubSub, kvs })
-  await plugins.registerFsp(fspServer)
-
-  await Promise.all([start(fspServer), start(adminServer)])
-  return [fspServer, adminServer]
+  const server = await create({...config }, { logger, pubSub, kvs })
+  await plugins.register(server)
+  await start(server)
+  return server
 }

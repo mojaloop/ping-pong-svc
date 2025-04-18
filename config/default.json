@@ -1,6 +1,5 @@
 {
-  "ADMIN_PORT": "3300",
-  "FSP_PORT": "3301",
+  "PORT": "3300",
   "HOST": "0.0.0.0",
   "REDIS": {
     "enabled": true,

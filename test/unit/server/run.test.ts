@@ -14,8 +14,7 @@ jest.mock('../../../src/shared/config');
 
 describe('run function', () => {
   const mockConfig = {
-    ADMIN_PORT: 3001,
-    FSP_PORT: 3002,
+    PORT: 3001,
     REDIS: {
       connectionConfig: {}
     },
@@ -29,16 +28,13 @@ describe('run function', () => {
     }
   };
 
-  let mockAdminServer: Server;
-  let mockFspServer: Server;
+  let mockServer: Server;
 
   beforeEach(() => {
-    mockAdminServer = { info: { port: mockConfig.ADMIN_PORT } } as unknown as Server;
-    mockFspServer = { info: { port: mockConfig.FSP_PORT } } as unknown as Server;
+    mockServer = { info: { port: mockConfig.PORT } } as unknown as Server;
 
     (start as jest.Mock).mockResolvedValue(undefined);
-    (plugins.registerAdmin as jest.Mock).mockResolvedValue(undefined);
-    (plugins.registerFsp as jest.Mock).mockResolvedValue(undefined);
+    (plugins.register as jest.Mock).mockResolvedValue(undefined);
     (Util.Endpoints.initializeCache as jest.Mock).mockResolvedValue(undefined);
     (Util.Redis.RedisCache.prototype.connect as jest.Mock).mockResolvedValue(undefined);
     (Util.Redis.PubSub.prototype.connect as jest.Mock).mockResolvedValue(undefined);
@@ -63,30 +59,23 @@ describe('run function', () => {
     expect(Util.Redis.PubSub.prototype.connect).toHaveBeenCalled();
   });
 
-  it('should create and start both admin and FSP servers', async () => {
-    (create as jest.Mock).mockResolvedValue(mockAdminServer).mockResolvedValueOnce(mockAdminServer);
-    (create as jest.Mock).mockResolvedValue(mockAdminServer).mockResolvedValueOnce(mockFspServer);
+  it('should create and start the server', async () => {
+    (create as jest.Mock).mockResolvedValue(mockServer);
     // @ts-ignore
-    const servers = await run(mockConfig);
+    const server = await run(mockConfig);
 
-    expect(create).toHaveBeenCalledTimes(2);
+    expect(create).toHaveBeenCalledTimes(1);
     expect(create).toHaveBeenCalledWith(
-      { ...mockConfig, PORT: mockConfig.ADMIN_PORT },
-      expect.objectContaining({ logger: expect.anything(), pubSub: expect.anything(), kvs: expect.anything() })
-    );
-    expect(create).toHaveBeenCalledWith(
-      { ...mockConfig, PORT: mockConfig.FSP_PORT },
+      { ...mockConfig, PORT: mockConfig.PORT },
       expect.objectContaining({ logger: expect.anything(), pubSub: expect.anything(), kvs: expect.anything() })
     );
 
-    expect(plugins.registerAdmin).toHaveBeenCalledWith(mockAdminServer);
-    expect(plugins.registerFsp).toHaveBeenCalledWith(mockFspServer);
+    expect(plugins.register).toHaveBeenCalledWith(mockServer);
 
-    expect(start).toHaveBeenCalledTimes(2);
-    expect(start).toHaveBeenCalledWith(mockAdminServer);
-    expect(start).toHaveBeenCalledWith(mockFspServer);
+    expect(start).toHaveBeenCalledTimes(1);
+    expect(start).toHaveBeenCalledWith(mockServer);
 
-    expect(servers).toEqual([mockFspServer, mockAdminServer]);
+    expect(server).toEqual(mockServer);
   });
 
   it('should throw an error if server creation fails', async () => {

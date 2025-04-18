@@ -28,11 +28,10 @@ import { Server, ServerRegisterPluginObject } from '@hapi/hapi'
 import { Util } from '@mojaloop/central-services-shared'
 import Handlers from '../handlers'
 
-const openapiAdminDefinitionPath = path.resolve(__dirname, '../../interface/api-admin.yaml')
-const openapiFspDefinitionPath = path.resolve(__dirname, '../../interface/api.yaml')
+const openapiDefinitionPath = path.resolve(__dirname, '../../interface/api.yaml')
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function adminInitialize(): Promise<ServerRegisterPluginObject<any>> {
+async function initialize(): Promise<ServerRegisterPluginObject<any>> {
   return {
     plugin: {
       name: 'openapi',
@@ -43,29 +42,11 @@ async function adminInitialize(): Promise<ServerRegisterPluginObject<any>> {
       }
     },
     options: {
-      openapi: await Util.OpenapiBackend.initialise(openapiAdminDefinitionPath, Handlers)
-    }
-  }
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function fspInitialize(): Promise<ServerRegisterPluginObject<any>> {
-  return {
-    plugin: {
-      name: 'openapi',
-      version: '1.0.0',
-      multiple: true,
-      register: function (server: Server, options: { [index: string]: string | object }): void {
-        server.expose('openapi', options.openapi)
-      }
-    },
-    options: {
-      openapi: await Util.OpenapiBackend.initialise(openapiFspDefinitionPath, Handlers)
+      openapi: await Util.OpenapiBackend.initialise(openapiDefinitionPath, Handlers)
     }
   }
 }
 
 export default {
-  adminInitialize,
-  fspInitialize
+  initialize,
 }

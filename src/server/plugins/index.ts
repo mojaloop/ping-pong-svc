@@ -33,8 +33,8 @@ import ErrorHandling from '@mojaloop/central-services-error-handling'
 import Good from './good'
 import OpenAPI from './openAPI'
 
-async function registerAdmin(server: Server): Promise<Server> {
-  const openapiBackend = await OpenAPI.adminInitialize()
+async function register(server: Server): Promise<Server> {
+  const openapiBackend = await OpenAPI.initialize()
 
   const hapiSwaggerObj = {
     plugin: HapiSwagger,
@@ -83,56 +83,6 @@ async function registerAdmin(server: Server): Promise<Server> {
   return server
 }
 
-async function registerFsp(server: Server): Promise<Server> {
-  const openapiBackend = await OpenAPI.fspInitialize()
-  const hapiSwaggerObj = {
-    plugin: HapiSwagger,
-    options: {
-      customSwaggerFile: openapiBackend.options.openapi.definition,
-      OAS: openapiBackend.options.openapi.api,
-      tryItOutEnabled: false,
-      uiOptions: {
-        tryItOutEnabled: false
-      }
-    }
-  }
-
-  const plugins = [
-    Util.Hapi.OpenapiBackendValidator,
-    Good,
-    openapiBackend,
-    Inert,
-    hapiSwaggerObj,
-    Vision,
-    Blip,
-    ErrorHandling,
-    Util.Hapi.HapiEventPlugin,
-    Util.Hapi.loggingPlugin
-  ]
-
-  await server.register(plugins)
-  // use as a catch-all handler
-  server.route({
-    method: ['GET', 'PUT'],
-    path: '/{path*}',
-    handler: (req, h): ServerRoute => {
-      return openapiBackend.options.openapi.handleRequest(
-        {
-          method: req.method,
-          path: req.path,
-          body: req.payload,
-          query: req.query,
-          headers: req.headers
-        },
-        req,
-        h
-      )
-    }
-
-  })
-  return server
-}
-
 // Context is required for OpenAPI
 export interface Context {
   method: string
@@ -143,6 +93,5 @@ export interface Context {
 }
 
 export default {
-  registerAdmin,
-  registerFsp
+  register,
 }

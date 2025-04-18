@@ -29,11 +29,10 @@
 import path from 'path'
 import Convict from 'convict'
 
-const ENV_PREFIX = 'ALS_MSISDN_ORACLE_'
+const ENV_PREFIX = 'PING_PONG_SVC_'
 
 export interface FileConfig {
-  ADMIN_PORT: number
-  FSP_PORT: number
+  PORT: number
   HOST: string
   REDIS: {
     enabled: boolean
@@ -73,15 +72,10 @@ export interface FileConfig {
 }
 
 const ConvictFileConfig = Convict<FileConfig>({
-  ADMIN_PORT: {
+  PORT: {
     format: Number,
     default: 3300,
-    env: ENV_PREFIX + 'ADMIN_PORT'
-  },
-  FSP_PORT : {
-    format: Number,
-    default: 3301,
-    env: ENV_PREFIX + 'FSP_PORT'
+    env: ENV_PREFIX + 'PORT'
   },
   HOST: {
     format: String,

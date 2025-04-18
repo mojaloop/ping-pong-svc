@@ -26,9 +26,7 @@ import fs from 'fs'
 import ConvictFileConfig from './convictFileConfig'
 
 export interface ServiceConfig {
-  PORT?: number
-  ADMIN_PORT: number
-  FSP_PORT: number
+  PORT: number
   REDIS: {
     enabled: boolean
     type: string
@@ -79,8 +77,7 @@ const getFileContent = (path: string) => {
 const ConfigFileProperties = ConvictFileConfig.getProperties()
 
 const ServiceConfig: ServiceConfig = {
-  ADMIN_PORT: ConfigFileProperties.ADMIN_PORT,
-  FSP_PORT: ConfigFileProperties.FSP_PORT,
+  PORT: ConfigFileProperties.PORT,
   HOST: ConfigFileProperties.HOST,
   REDIS: ConfigFileProperties.REDIS,
   INSPECT: ConfigFileProperties.INSPECT,

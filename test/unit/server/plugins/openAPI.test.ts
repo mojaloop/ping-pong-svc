@@ -34,7 +34,7 @@ describe('openAPI plugin', () => {
 
     (Util.OpenapiBackend.initialise as jest.Mock).mockResolvedValue(mockOpenapiInstance);
 
-    const plugin = await openApi.fspInitialize()
+    const plugin = await openApi.initialize()
 
     expect(Util.OpenapiBackend.initialise).toHaveBeenCalledWith(mockApiPath, expect.anything());
     // @ts-ignore
@@ -48,6 +48,6 @@ describe('openAPI plugin', () => {
 
   it('should throw an error if OpenapiBackend initialization fails', async () => {
     (Util.OpenapiBackend.initialise as jest.Mock).mockRejectedValue(new Error('Initialization failed'));
-    await expect(openApi.fspInitialize()).rejects.toThrow('Initialization failed');
+    await expect(openApi.initialize()).rejects.toThrow('Initialization failed');
   });
 });
