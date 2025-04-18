@@ -17,6 +17,7 @@
  optionally within square brackets <email>.
 
  - Vijay Kumar Guthi <vijaya.guthi@infitx.com>
+ - Kevin Leyow <kevin.leyow@infitx.com>
  --------------
  ******/
 

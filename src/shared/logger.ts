@@ -22,7 +22,8 @@
  optionally within square brackets <email>.
  * Gates Foundation
 
- * Vijay Kumar Guthi <vijaya.guthi@infitx.com>
+ - Vijay Kumar Guthi <vijaya.guthi@infitx.com>
+ - Kevin Leyow <kevin.leyow@infitx.com>
 
  --------------
  ******/

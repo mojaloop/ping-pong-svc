@@ -19,6 +19,7 @@
  - Name Surname <name.surname@gatesfoundation.com>
 
  - Vijay Kumar Guthi <vijaya.guthi@infitx.com>
+ - Kevin Leyow <kevin.leyow@infitx.com>
  --------------
  ******/
 

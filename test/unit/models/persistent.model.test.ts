@@ -40,7 +40,6 @@ import {
 import shouldNotBeExecuted from 'test/unit/shouldNotBeExecuted'
 import sortedArray from 'test/unit/sortedArray'
 import mockLogger from '../mockLogger'
-import { logger } from '~/shared/logger'
 import { ILogger } from '~/shared/types'
 
 const { mocked } = jest

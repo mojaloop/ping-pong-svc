@@ -22,9 +22,10 @@
  * Mojaloop Foundation
  - Name Surname <name.surname@mojaloop.io>
 
- - Sridhar Voruganti <sridhar.voruganti@modusbox.com>
+ - Kevin Leyow <kevin.leyow@infitx.com>
  --------------
  ******/
+
 import {
   PingPongData,
   PingPongModelConfig,

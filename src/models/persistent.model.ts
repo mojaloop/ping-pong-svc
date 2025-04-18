@@ -23,6 +23,7 @@
  - Name Surname <name.surname@mojaloop.io>
 
  - Paweł Marzec <pawel.marzec@modusbox.com>
+ - Kevin Leyow <kevin.leyow@infitx.com>
  --------------
  ******/
 
