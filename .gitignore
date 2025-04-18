@@ -80,3 +80,5 @@ devspace*
 # Add Ignores
 *IGNORE*
 *ignore*
+
+reports/

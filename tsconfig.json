@@ -1,7 +1,18 @@
 {
   "compilerOptions": {
     "baseUrl": "./",
-    "rootDir": "./src",
+    "paths": {
+      "~/*": [
+        "src/*"
+      ],
+      "test/*": [
+        "test/*"
+      ]
+    },
+    "rootDirs": [
+      "src",
+      "test"
+    ],
     "outDir": "./dist",
     "strict": true,
     "noUncheckedIndexedAccess": true,
@@ -16,8 +27,22 @@
     "skipLibCheck": true,
     "sourceMap": true,
     "declaration": true,
-    "declarationMap": true
+    "declarationMap": true,
+    "resolveJsonModule": true
   },
-  "include": ["./src"],
-  "exclude": ["node_modules"]
+  "include": [
+    "src",
+    "test",
+    "ambient.d.ts",
+    "commitlint.config.js",
+    "jest.bdd.config.js",
+    "jest.config.js",
+    "jest.coverage.config.js",
+    "jest.integration.config.js"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "coverage"
+  ]
 }

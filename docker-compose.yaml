@@ -1,0 +1,264 @@
+networks:
+  mojaloop-net:
+    name: mojaloop-net
+
+# @see https://uninterrupted.tech/blog/hassle-free-redis-cluster-deployment-using-docker/
+x-redis-node: &REDIS_NODE
+  image: docker.io/bitnami/redis-cluster:6.2.14
+  environment: &REDIS_ENVS
+    ALLOW_EMPTY_PASSWORD: yes
+    REDIS_CLUSTER_DYNAMIC_IPS: no
+    REDIS_CLUSTER_ANNOUNCE_IP: ${REDIS_CLUSTER_ANNOUNCE_IP}
+    REDIS_NODES: redis-node-0:6379 redis-node-1:9301 redis-node-2:9302 redis-node-3:9303 redis-node-4:9304 redis-node-5:9305
+  healthcheck:
+    test: [ "CMD", "redis-cli", "ping" ]
+    timeout: 2s
+  networks:
+    - mojaloop-net
+
+services:
+  ping-pong-svc:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ping-pong-svc
+    ports:
+      - "3300:3300"
+    networks:
+      - mojaloop-net
+    volumes:
+       - ./docker/ping-pong-svc/default.json:/opt/app/dist/config/default.json
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      redis-node-0:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "sh", "-c" ,"apk --no-cache add curl", ";", "curl", "http://localhost:3200/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+
+  central-ledger:
+    image: mojaloop/central-ledger:v17.8.0-snapshot.34
+    user: root
+    command:
+      - "sh"
+      - "-c"
+      - "node src/api/index.js"
+    ports:
+      - "${CL_PORT:-3001}:3001"
+    volumes:
+       - ./docker/central-ledger/default.json:/opt/app/config/default.json
+       - ./docker/wait-for:/opt/wait-for
+    environment:
+      - LOG_LEVEL=debug
+      - CLEDG_DATABASE_URI=mysql://central_ledger:password@mysql:3306/central_ledger
+      - CLEDG_SIDECAR__DISABLED=true
+      - CLEDG_MONGODB__DISABLED=true
+    networks:
+      - mojaloop-net
+    depends_on:
+      mysql:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      redis-node-0:
+        condition: service_healthy
+    extra_hosts:
+      - "redis-node-0:host-gateway"
+    healthcheck:
+      test: ["CMD", "sh", "-c" ,"apk --no-cache add curl", ";", "curl", "http://localhost:3001/health"]
+      timeout: 20s
+      retries: 10
+      interval: 30s
+
+  kafka-provisioning:
+    container_name: kafka-provisioning
+    networks:
+      - mojaloop-net
+    image: docker.io/bitnami/kafka:${DEP_KAFKA_VERSION}
+    depends_on:
+      - kafka
+    volumes:
+      - ./docker/kafka/scripts:/tmp/kafka/scripts
+    command: bash /tmp/kafka/scripts/provision.sh
+
+  kafka:
+    networks:
+      - mojaloop-net
+    image: docker.io/bitnami/kafka:${DEP_KAFKA_VERSION}
+    container_name: kafka
+    # ports:
+    #   - "9092:9092"
+    environment:
+      # BITNAMI_DEBUG: "yes"
+      ALLOW_PLAINTEXT_LISTENER: "yes"
+      KAFKA_ADVERTISED_HOST_NAME: kafka
+      KAFKA_CFG_LISTENERS: CONTROLLER://:9093,LISTENER_DOCKER://kafka:29092,LISTENER_EXTERN://:9092
+      KAFKA_CFG_ADVERTISED_LISTENERS: LISTENER_DOCKER://kafka:29092,LISTENER_EXTERN://localhost:9092
+      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,LISTENER_DOCKER:PLAINTEXT,LISTENER_EXTERN:PLAINTEXT
+      KAFKA_CFG_INTER_BROKER_LISTENER_NAME: LISTENER_DOCKER
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_CFG_MESSAGE_MAX_BYTES: 200000000
+      KAFKA_CFG_NODE_ID: 1
+      KAFKA_CFG_PROCESS_ROLES: broker,controller
+      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@127.0.0.1:9093
+      KAFKA_ENABLE_KRAFT: "true"
+    healthcheck:
+      test: ["CMD" ,"/opt/bitnami/kafka/bin/kafka-broker-api-versions.sh","--bootstrap-server","kafka:9092"]
+      timeout: 20s
+      retries: 10
+      start_period: 40s
+      interval: 30s
+
+  mysql:
+    image: mysql/mysql-server
+    deploy:
+      replicas: 1
+    # Disable logging as it is far too verbose for debugging locally
+    logging:
+      driver: none
+    ports:
+      - "3306:3306"
+    volumes:
+      # Note: this fixes the permissions issue, but docker-compose up will fail on first attempt
+      - ./docker/sql-init/:/docker-entrypoint-initdb.d/
+    environment:
+      - MYSQL_USER=${DBUSER:-central_ledger}
+      - MYSQL_PASSWORD=${DBPASS:-password}
+      - MYSQL_DATABASE=${DBUSER:-central_ledger}
+      - MYSQL_ALLOW_EMPTY_PASSWORD=true
+    networks:
+      - mojaloop-net
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "mysql"]
+      timeout: 20s
+      retries: 10
+      start_period: 40s
+      interval: 30s
+
+  redis-node-0:
+    <<: *REDIS_NODE
+    environment:
+      <<: *REDIS_ENVS
+      REDIS_CLUSTER_CREATOR: yes
+      REDIS_PORT_NUMBER: 6379
+    depends_on:
+      - redis-node-1
+      - redis-node-2
+      - redis-node-3
+      - redis-node-4
+      - redis-node-5
+    ports:
+      - "6379:6379"
+      - "16379:16379"
+  redis-node-1:
+    <<: *REDIS_NODE
+    environment:
+      <<: *REDIS_ENVS
+      REDIS_PORT_NUMBER: 9301
+    ports:
+      - "9301:9301"
+      - "19301:19301"
+  redis-node-2:
+    <<: *REDIS_NODE
+    environment:
+      <<: *REDIS_ENVS
+      REDIS_PORT_NUMBER: 9302
+    ports:
+      - "9302:9302"
+      - "19302:19302"
+  redis-node-3:
+    <<: *REDIS_NODE
+    environment:
+      <<: *REDIS_ENVS
+      REDIS_PORT_NUMBER: 9303
+    ports:
+      - "9303:9303"
+      - "19303:19303"
+  redis-node-4:
+    <<: *REDIS_NODE
+    environment:
+      <<: *REDIS_ENVS
+      REDIS_PORT_NUMBER: 9304
+    ports:
+      - "9304:9304"
+      - "19304:19304"
+  redis-node-5:
+    <<: *REDIS_NODE
+    environment:
+      <<: *REDIS_ENVS
+      REDIS_PORT_NUMBER: 9305
+    ports:
+      - "9305:9305"
+      - "19305:19305"
+
+  mojaloop-testing-toolkit:
+    image: mojaloop/ml-testing-toolkit:${TEST_TTK_SVC_VERSION}
+    container_name: mojaloop-testing-toolkit
+    volumes:
+      - "./docker/ml-testing-toolkit/spec_files:/opt/app/spec_files"
+      - "./docker/ml-testing-toolkit/test-cases:/opt/app/examples"
+    ports:
+      - "9440:4040"
+      - "9550:5050"
+    user: root
+    command:
+      - sh
+      - -c
+      - "npm start"
+    networks:
+      - mojaloop-net
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z -v localhost 4040"]
+      interval: 5s
+      timeout: 10s
+      start_period: 10s
+      retries: 10
+
+  mojaloop-testing-toolkit-ui:
+    image: mojaloop/ml-testing-toolkit-ui:${TEST_TTK_UI_VERSION}
+    ports:
+      - "9660:6060"
+    environment:
+      ## Change localhost to the host IP if you are running the UI on a different machine
+      - API_BASE_URL=http://localhost:9550
+      - AUTH_ENABLED=FALSE
+    command:
+      - sh
+      - /usr/share/nginx/start.sh
+    user: root
+    networks:
+      - mojaloop-net
+
+  ttk-provisioning:
+    image: mojaloop/ml-testing-toolkit-client-lib:${TEST_TTK_CLI_VERSION}
+    volumes:
+      - "./docker/ml-testing-toolkit/test-cases/collections:/opt/app/collections"
+      - "./docker/ml-testing-toolkit/test-cases/environments:/opt/app/environments"
+      - "./reports:/opt/app/reports"
+    depends_on:
+      mojaloop-testing-toolkit:
+        condition: service_healthy
+      central-ledger:
+        condition: service_healthy
+      #central-handler-position-batch:
+      #  condition: service_healthy
+      #ml-api-adapter:
+      #  condition: service_healthy
+      #account-lookup-service:
+      #  condition: service_healthy
+      #quoting-service:
+      #  condition: service_healthy
+      #quoting-service-handler:
+      #  condition: service_healthy
+    networks:
+      - mojaloop-net
+    command:
+      - sh
+      - -c
+      - "npm run cli -- -u http://mojaloop-testing-toolkit:5050 -l 2 -i collections/provisioning -e environments/default-env.json --labels std --save-report true --report-format html --report-target file://reports/ttk-provisioning-report.html"
+    user: root

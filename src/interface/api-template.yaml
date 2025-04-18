@@ -1,0 +1,146 @@
+openapi: 3.0.0
+info:
+  version: '1.0'
+  title: Ping Pong Service
+  description: TBD
+  contact: {}
+paths:
+  /health:
+    get:
+      tags:
+        - health
+      responses:
+        '200':
+          $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/200.yaml'
+        '400':
+          $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/400.yaml'
+        '401':
+          $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/401.yaml'
+        '403':
+          $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/403.yaml'
+        '404':
+          $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/404.yaml'
+        '405':
+          $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/405.yaml'
+        '406':
+          $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/406.yaml'
+        '501':
+          $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/501.yaml'
+        '503':
+          $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/503.yaml'
+      operationId: HealthGet
+      summary: Get Server
+      description: The HTTP request GET /health is used to return the current status of the API.
+  /metrics:
+    get:
+      tags:
+        - metrics
+      responses:
+        '200':
+          $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/200.yaml'
+        '400':
+          $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/400.yaml'
+        '401':
+          $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/401.yaml'
+        '403':
+          $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/403.yaml'
+        '404':
+          $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/404.yaml'
+        '405':
+          $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/405.yaml'
+        '406':
+          $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/406.yaml'
+        '501':
+          $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/501.yaml'
+        '503':
+          $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/503.yaml'
+      operationId: MetricsGet
+      summary: Prometheus metrics endpoint
+      description: The HTTP request GET /metrics is used to return metrics for the API.
+  /ping:
+    post:
+      summary: Endpoint to trigger a ping to a participant
+      tags:
+        - ping
+      operationId: PingPost
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                requestId:
+                  $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/schemas/CorrelationId.yaml'
+      responses:
+        '202':
+          $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/202.yaml'
+        '400':
+          $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/400.yaml'
+        '401':
+          $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/401.yaml'
+        '403':
+          $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/403.yaml'
+        '404':
+          $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/404.yaml'
+        '405':
+          $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/405.yaml'
+        '406':
+          $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/406.yaml'
+        '501':
+          $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/501.yaml'
+        '503':
+          $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/503.yaml'
+  /ping/{ID}:
+    put:
+      summary: Endpoint for receiving response from a participant
+      tags:
+        - ping
+      parameters:
+        - $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/parameters/ID.yaml'
+      operationId: PingIDPut
+      responses:
+        '200':
+          $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/200.yaml'
+        '400':
+          $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/400.yaml'
+        '401':
+          $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/401.yaml'
+        '403':
+          $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/403.yaml'
+        '404':
+          $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/404.yaml'
+        '405':
+          $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/405.yaml'
+        '406':
+          $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/406.yaml'
+        '501':
+          $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/501.yaml'
+        '503':
+          $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/503.yaml'
+  /ping/{ID}/error:
+    put:
+      summary: Endpoint for receiving error response from a participant
+      tags:
+        - ping
+      parameters:
+        - $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/parameters/ID.yaml'
+      operationId: PingIDPutError
+      responses:
+        '400':
+          $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/400.yaml'
+        '401':
+          $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/401.yaml'
+        '403':
+          $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/403.yaml'
+        '404':
+          $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/404.yaml'
+        '405':
+          $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/405.yaml'
+        '406':
+          $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/406.yaml'
+        '501':
+          $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/501.yaml'
+        '503':
+          $ref: '../../node_modules/@mojaloop/api-snippets/fspiop/v2_0/openapi3/components/responses/503.yaml'
+
