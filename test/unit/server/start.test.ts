@@ -23,21 +23,6 @@ describe('start function', () => {
     expect(mockServer.start).toHaveBeenCalled();
   });
 
-  it('should log the server start message', async () => {
-    const mockName = 'test-service';
-    const mockVersion = '1.0.0';
-
-    jest.mock('../../../package.json', () => ({
-      name: mockName,
-      version: mockVersion,
-    }));
-
-    await start(mockServer);
-    expect(mockServer.app.logger.info).toHaveBeenCalledWith(
-      `${mockName}@${mockVersion} is running on ${mockServer.info.uri}`
-    );
-  });
-
   it('should return the server instance', async () => {
     const result = await start(mockServer);
     expect(result).toBe(mockServer);

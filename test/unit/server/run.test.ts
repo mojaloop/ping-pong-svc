@@ -19,9 +19,13 @@ describe('run function', () => {
     REDIS: {
       connectionConfig: {}
     },
-    CENTRAL_SHARED_ENDPOINT_CACHE_CONFIG: {},
+    CENTRAL_SHARED_ENDPOINT_CACHE_CONFIG: {
+      "expiresIn": 180000,
+      "generateTimeout": 30000,
+      "getDecoratedValue": true
+    },
     HUB_PARTICIPANT: {
-      NAME: 'hub'
+      NAME: 'Hub'
     }
   };
 
@@ -32,7 +36,6 @@ describe('run function', () => {
     mockAdminServer = { info: { port: mockConfig.ADMIN_PORT } } as unknown as Server;
     mockFspServer = { info: { port: mockConfig.FSP_PORT } } as unknown as Server;
 
-    (create as jest.Mock).mockResolvedValueOnce(mockAdminServer).mockResolvedValueOnce(mockFspServer);
     (start as jest.Mock).mockResolvedValue(undefined);
     (plugins.registerAdmin as jest.Mock).mockResolvedValue(undefined);
     (plugins.registerFsp as jest.Mock).mockResolvedValue(undefined);
@@ -61,6 +64,8 @@ describe('run function', () => {
   });
 
   it('should create and start both admin and FSP servers', async () => {
+    (create as jest.Mock).mockResolvedValue(mockAdminServer).mockResolvedValueOnce(mockAdminServer);
+    (create as jest.Mock).mockResolvedValue(mockAdminServer).mockResolvedValueOnce(mockFspServer);
     // @ts-ignore
     const servers = await run(mockConfig);
 
@@ -85,14 +90,12 @@ describe('run function', () => {
   });
 
   it('should throw an error if server creation fails', async () => {
-    (create as jest.Mock).mockRejectedValueOnce(new Error('Server creation failed'));
-    // @ts-ignore
-    await expect(run(mockConfig)).rejects.toThrow('Server creation failed');
+    (create as jest.Mock).mockRejectedValue(new Error('Server creation failed'));
+    await expect(run(mockConfig as any)).rejects.toThrow('Server creation failed');
   });
 
   it('should throw an error if Redis connection fails', async () => {
-    (Util.Redis.RedisCache.prototype.connect as jest.Mock).mockRejectedValueOnce(new Error('Redis connection failed'));
-    // @ts-ignore
-    await expect(run(mockConfig)).rejects.toThrow('Redis connection failed');
+    (Util.Redis.RedisCache.prototype.connect as jest.Mock).mockRejectedValue(new Error('Redis connection failed'));
+    await expect(run(mockConfig as any)).rejects.toThrow('Redis connection failed');
   });
 });
