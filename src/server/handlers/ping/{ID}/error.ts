@@ -16,7 +16,7 @@ export async function put(context: Context, request: Request, h: ResponseToolkit
     const channel = PingPongModel.notificationChannel(ID)
 
     // @ts-ignore
-    const publisher: Util['Redis']['PubSub'] = request.server.app.publisher
+    const publisher: Util['Redis']['PubSub'] = request.server.app.pubSub
 
     await publisher.publish(channel, payload as unknown as any)
     logger.info(`Payload published to channel: ${channel}`)

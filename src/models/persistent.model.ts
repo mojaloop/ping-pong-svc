@@ -212,7 +212,11 @@ export class PersistentModel<JSM extends ControlledStateMachine, Data extends St
    */
   async saveToKVS(): Promise<void> {
     try {
-      const res = await this.kvs.set(this.key, JSON.stringify(this.data))
+      if (typeof this.data == 'object') {
+        await this.kvs.set(this.key, JSON.stringify(this.data))
+      } else {
+        await this.kvs.set(this.key, this.data)
+      }
       this.logger.info(`Persisted model in cache: ${this.key}`)
     } catch (err) {
       this.logger.info(`Error saving model: ${this.key}`)
@@ -258,7 +262,12 @@ export async function loadFromKVS<JSM extends ControlledStateMachine, Data exten
     if (!dataString) {
       throw new Error(`No data found in KVS for: ${config.key}`)
     }
-    const data = JSON.parse(dataString) as Data
+    let data
+    if (typeof dataString == 'string') {
+      data = JSON.parse(dataString) as Data
+    } else {
+      data = dataString as Data
+    }
     if (!data) {
       throw new Error(`No data found in KVS for: ${config.key}`)
     }
